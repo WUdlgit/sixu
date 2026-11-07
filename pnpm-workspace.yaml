@@ -1,0 +1,12 @@
+packages:
+  - '.'
+
+# pnpm 11 reads overrides here; this preserves the upstream lockfile's pin.
+overrides:
+  '@lezer/common': 1.5.2
+
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true

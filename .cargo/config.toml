@@ -1,0 +1,4 @@
+# Sixu uses the official sparse registry. The upstream mirror failed TLS on
+# this Windows environment. Do not disable certificate verification.
+[registries.crates-io]
+protocol = "sparse"

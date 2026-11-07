@@ -1,0 +1,7 @@
+Sixu (思序) is a modified distribution of NoteGen.
+Upstream: https://github.com/codexu/note-gen
+Base: v0.39.2, commit 325e9940ed785576d9963088afdca66d6593a6bb
+Original copyright: codexu and NoteGen contributors.
+Sixu modifications: WUdlgit, 2026; AI-assisted implementation.
+The upstream GNU GPL version 3 LICENSE and third-party license notices are retained.
+This repository is an independent source snapshot, not an official NoteGen release.
