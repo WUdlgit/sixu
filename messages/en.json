@@ -1484,7 +1484,7 @@
       "desc": "Capture first, organize later.",
       "resourcesTitle": "Resources and support",
       "resourcesDesc": "Open docs, release notes, or community channels for feedback.",
-      "licenseText": "Open source · GitHub · GPL-3.0",
+      "licenseText": "Sixu modifications © 2026 WUdlgit · based on NoteGen © 2025 codexu · GPL-3.0 · no warranty (§15–16) · source github.com/WUdlgit/sixu",
       "version": "NoteGen v{version}",
       "checkReleases": "Check Release History",
       "language": "Language",

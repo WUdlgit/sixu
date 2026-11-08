@@ -1735,7 +1735,7 @@
       "desc": "先记录，再整理。",
       "resourcesTitle": "资源与支持",
       "resourcesDesc": "查看文档、版本记录，或进入社区反馈问题。",
-      "licenseText": "开源项目 · GitHub · GPL-3.0",
+      "licenseText": "思序修改版 © 2026 WUdlgit · 基于 © 2025 codexu 的 NoteGen · GPL-3.0 发布 · 不提供任何担保（§15–16）· 源码 github.com/WUdlgit/sixu",
       "version": "NoteGen v{version}",
       "checkReleases": "查询历史版本",
       "language": "语言",
