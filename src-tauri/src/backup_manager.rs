@@ -98,7 +98,7 @@ fn should_skip_app_data_entry(path: &Path) -> bool {
     ) || path
         .file_name()
         .and_then(|name| name.to_str())
-        .is_some_and(|name| name == "temp_import" || is_plugin_local_state_entry(name))
+        .is_some_and(|name| name == "temp_import" || name == "backups" || is_plugin_local_state_entry(name))
 }
 
 fn path_is_within(path: &Path, parent: &Path) -> bool {

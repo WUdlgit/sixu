@@ -19,7 +19,9 @@
     "macos-app-store-build": "tauri build --config src-tauri/tauri.macos-app-store.conf.json",
     "plugin-api:check-version": "python3 scripts/check-plugin-contract.py",
     "plugin-market:check-key": "bash ./scripts/check-plugin-market-public-key.sh",
-    "test:sixu": "node --experimental-strip-types --test scripts/sixu-writing.test.mjs"
+    "test:sixu": "node --experimental-strip-types --test scripts/sixu-writing.test.mjs",
+    "test:sixu-startup": "node --test scripts/sixu-startup.test.mjs",
+    "test:sixu-data": "node --test scripts/sixu-data-safety.test.mjs"
   },
   "dependencies": {
     "@antv/infographic": "^0.2.7",

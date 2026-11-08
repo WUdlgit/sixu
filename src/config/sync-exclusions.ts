@@ -174,6 +174,8 @@ export const ALWAYS_SYNC_EXCLUDED_FIELDS: string[] = [
   'managedBackupRetention',
   'managedBackupLastSuccessAt',
   'managedBackupLastError',
+  // The one-time default-backup bootstrap is device-local state.
+  'sixuDefaultBackupInitialized',
   'cloudFolderSyncConfig',
   'pendingOneDriveConfig',
   'oneDriveAuthTokens',

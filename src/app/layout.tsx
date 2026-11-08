@@ -11,6 +11,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { DeveloperModeController } from "@/components/developer-mode-controller";
 import { AppLockGate } from "@/components/app-lock-gate";
 import { CustomCssController } from "@/components/custom-css-controller";
+import { STARTUP_BOOTSTRAP } from '@/lib/sixu/startup-diagnostics';
 
 function AppRuntime({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -30,6 +31,7 @@ export default function RootLayout({
       <html lang="zh-CN" suppressHydrationWarning>
         <head>
           <title>思序 · 长文章创作</title>
+          <script id="sixu-startup-bootstrap" dangerouslySetInnerHTML={{ __html: STARTUP_BOOTSTRAP }} />
           {/* 移动端视口设置 */}
           <meta
             name="viewport"

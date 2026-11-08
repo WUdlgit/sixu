@@ -10,6 +10,7 @@ mod backup;
 mod backup_manager;
 mod browser;
 mod cloud_folder_sync;
+mod data_guard;
 mod database_recovery;
 mod deep_link;
 mod device;
@@ -234,6 +235,12 @@ fn main() {
             list_cloud_folder_sync_files,
             migrate_workspace_to_cloud_folder,
             database_recovery::delete_local_database,
+            data_guard::sixu_scan_data_profiles,
+            data_guard::sixu_schedule_data_profile_import,
+            data_guard::sixu_read_import_result,
+            data_guard::sixu_clear_import_result,
+            data_guard::sixu_read_store_recovery,
+            data_guard::sixu_clear_store_recovery,
             import_skill,
             import_skill_zip,
             import_notion_zip,
@@ -360,6 +367,9 @@ fn main() {
             screenshot::cleanup_temp_screenshot_dir(app.handle());
             screenshot::cleanup_desktop_screenshot_captures(app.handle());
             screenshot::cleanup_pinned_screenshot_cache(app.handle());
+            // Apply a queued profile import before any database connection opens.
+            data_guard::protect_corrupt_store(app.handle());
+            data_guard::run_pending_import(app.handle());
             app_setup::setup_app(app)
         })
         .build(tauri::generate_context!())

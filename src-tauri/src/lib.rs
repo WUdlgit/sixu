@@ -7,6 +7,7 @@ mod android_ocr;
 mod backup;
 mod backup_manager;
 mod cloud_folder_sync;
+mod data_guard;
 mod database_recovery;
 mod record_transaction;
 mod device;
@@ -164,6 +165,12 @@ pub fn run() {
             list_cloud_folder_sync_files,
             migrate_workspace_to_cloud_folder,
             database_recovery::delete_local_database,
+            data_guard::sixu_scan_data_profiles,
+            data_guard::sixu_schedule_data_profile_import,
+            data_guard::sixu_read_import_result,
+            data_guard::sixu_clear_import_result,
+            data_guard::sixu_read_store_recovery,
+            data_guard::sixu_clear_store_recovery,
             import_skill,
             import_skill_zip,
             import_notion_zip,
@@ -319,6 +326,8 @@ pub fn run() {
             self_hosted_files::self_hosted_recover_file_journal,
         ])
         .setup(|app| {
+            data_guard::protect_corrupt_store(app.handle());
+            data_guard::run_pending_import(app.handle());
             plugins::cleanup_plugin_artifacts(app.handle());
             Ok(())
         })

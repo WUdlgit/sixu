@@ -48,6 +48,10 @@ import { PluginCommandPalette } from "@/components/plugins/plugin-command-palett
 import { PluginHostBridge } from "@/components/plugins/plugin-host-bridge"
 import { PluginDialogHost } from "@/components/plugins/plugin-dialog-host"
 import { DesktopScreenshotBridge } from "@/components/desktop-screenshot-bridge"
+import useChatStore from '@/stores/chat'
+import { recordStartupEvent, type StartupPhase } from '@/lib/sixu/startup-diagnostics'
+import { ensureDefaultLocalBackup } from '@/lib/sixu/data-safety'
+import { DataRecoveryBanner } from '@/components/sixu/data-recovery-banner'
 
 export default function RootLayout({
   children,
@@ -71,6 +75,8 @@ export default function RootLayout({
   const t = useTranslations()
   const { toast } = useToast()
   const [pluginsReady, setPluginsReady] = useState(false)
+  const [startupStatus, setStartupStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+  const [startupPhase, setStartupPhase] = useState<StartupPhase>('settings')
 
   useEffect(() => {
     let cancelled = false
@@ -347,13 +353,34 @@ export default function RootLayout({
     void reportAppStart()
 
     const initializeApp = async () => {
+      let phase: StartupPhase = 'settings'
+      const runStage = async (next: StartupPhase, load: () => Promise<unknown>) => {
+        phase = next
+        if (!cancelled) setStartupPhase(next)
+        recordStartupEvent(next, 'started')
+        await load()
+        recordStartupEvent(next, 'completed')
+      }
       try {
-        await initSettingData()
-        initMainHosting()
-
-        // 先完成数据库和默认工作区初始化，避免首次启动时其他逻辑抢先读取空目录或未建表数据库。
-        await initAllDatabases()
+        // Mount data-dependent panels only after local reads succeed. A rejected
+        // native call must never look like an empty user library.
+        await runStage('settings', initSettingData)
+        await runStage('database', initAllDatabases)
+        await runStage('history', () => useChatStore.getState().initConversations())
+        await runStage('notes', () => useArticleStore.getState().loadFileTree({ skipRemoteSync: true }))
         if (cancelled) return
+        setStartupStatus('ready')
+        recordStartupEvent('ready', 'completed')
+      } catch (error) {
+        recordStartupEvent(phase, 'failed', error)
+        if (!cancelled) setStartupStatus('error')
+        return
+      }
+
+      // Optional background services must not change successful local-data
+      // startup into a failure screen or block access to the user's library.
+      try {
+        await initMainHosting()
         const { resumeWorkspacePathMoves } = await import('@/lib/sync/workspace-path-moves')
         resumeWorkspacePathMoves()
         setPluginsReady(true)
@@ -369,6 +396,9 @@ export default function RootLayout({
         void reindexPendingMemories()
         await initAutoDataSyncRuntime()
         if (cancelled) return
+        // One automatic local backup is enabled on first launch so a data
+        // directory mix-up can never silently destroy the only copy.
+        await ensureDefaultLocalBackup()
         stopManagedBackup = initManagedBackupRuntime()
 
         void initShortcut().catch((error) => console.error('Failed to initialize global shortcuts:', error))
@@ -498,8 +528,19 @@ export default function RootLayout({
       <TextSizeProvider>
         <TitleBar />
         <main className="flex flex-1 flex-col overflow-hidden w-full h-[calc(100vh-36px)] mt-9">
-          {children}
+          {startupStatus === 'ready' ? children : (
+            <section role={startupStatus === 'error' ? 'alert' : 'status'} className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
+              <h1 className="text-xl font-semibold">{startupStatus === 'error' ? '本地数据加载失败' : '正在加载本地数据'}</h1>
+              <p className="text-muted-foreground">{startupStatus === 'error'
+                ? '当前无法确认笔记、历史和模型配置，请重新加载后再继续。'
+                : '加载完成后显示你的笔记、历史对话和模型配置。'}</p>
+              <p className="text-sm text-muted-foreground">当前步骤：{{ settings: '读取配置', database: '打开本地数据库', history: '读取历史对话', notes: '读取笔记', ready: '完成' }[startupPhase]}</p>
+              {startupStatus === 'error' && <button className="rounded-md border px-5 py-2 hover:bg-accent" onClick={() => window.location.reload()}>重新加载</button>}
+            </section>
+          )}
         </main>
+        {startupStatus === 'ready' && <>
+        <DataRecoveryBanner />
         <SettingsDialog />
         <SyncConfirmDialog />
         <MemoryAutoNotifications />
@@ -510,6 +551,7 @@ export default function RootLayout({
         <PluginCommandPalette />
         <PluginDialogHost />
         <CloseBehaviorGuard />
+        </>}
       </TextSizeProvider>
     </ThemeProvider>
   );

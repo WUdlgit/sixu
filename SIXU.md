@@ -18,10 +18,19 @@
 
 前端：Node 24、pnpm，运行 `pnpm install --frozen-lockfile`、`pnpm exec tsc --noEmit`、`pnpm build`。
 提示词行为检查：`node --experimental-strip-types --test scripts/sixu-writing.test.mjs`。
+启动与数据安全检查：`node --test scripts/sixu-startup.test.mjs`、`node --test scripts/sixu-data-safety.test.mjs`。
 桌面开发：安装 Rust 和 Windows C++ 构建工具后，`pnpm tauri dev`。
 打包：`pnpm tauri build --bundles nsis`。
 
 不要把 API Key 写入源码或提交记录。不要把普通浏览器中的静态页面当作桌面文件/数据库功能已验证。
+
+## 数据安全
+
+- 用户数据默认在 Tauri 应用数据目录（Windows 为 `%APPDATA%\com.sixu.desktop`）。如果从 MSIX 打包的工具环境启动，Windows 会把同一路径重定向到该包的 `LocalCache\Roaming`，形成另一份数据目录；这会让“正常启动”看起来像数据消失。
+- 启动后如果历史对话和文章都为空，思序会扫描本机其它思序数据目录，在顶部提示来源、数量和更新时间，经确认后在下一次启动、数据库打开之前导入（导入前先备份当前目录）。
+- 首次启动自动启用本地备份：目录 `文档\思序备份`，每天一次，保留 10 份；可在“设置 → 备份”修改或关闭。备份包含数据库一致性快照、`store.json`、文章和写作偏好，属于私人文件，不上传云端。
+- `store.json` 无法解析时，启动阶段会在覆盖前保留 `store.json.corrupt-<时间戳>`，并在界面提示恢复入口。
+- 不要把应用数据目录放在临时目录或会被清理工具扫到的位置；不要同时从两个不同启动环境长期写入同一应用。
 
 ## 尚待完成的思序需求
 

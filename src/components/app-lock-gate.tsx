@@ -74,7 +74,7 @@ export function AppLockGate({ children }: { children: ReactNode }) {
   if (state === 'open') return children
 
   return (
-    <main className="flex h-dvh items-center justify-center overflow-y-auto bg-background p-6 text-foreground">
+    <main data-sixu-startup-paused={state === 'locked' || state === 'error' ? true : undefined} className="flex h-dvh items-center justify-center overflow-y-auto bg-background p-6 text-foreground">
       {isTauri() && getCurrentWindow().label === 'main' && <CloseBehaviorGuard />}
       <Card className="my-auto w-full max-w-md overflow-hidden border-foreground/10 shadow-xl shadow-foreground/5">
         <CardHeader className="items-center gap-4 px-8 pt-10 text-center sm:px-10 sm:pt-12">
